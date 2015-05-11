@@ -60,13 +60,13 @@ function stopMakingSoundOtherSpecie(value) {
 
 function blink(bool) {
 	console.log(bool ? 1 : 0);
+	bool = !bool;
 	timeout = setTimeout(function() {
-		bool = !bool;
 		blink(bool);
-	}, getTiming());
+	}, getTiming(bool));
 }
 
-function getTiming() {
+function getTiming(bool) {
 	var min = _.min(connectedClients, function(c) { return c.timing });
 	min = min.timing;
 	if(connectedClients.length == 1) {
@@ -76,5 +76,18 @@ function getTiming() {
 	for(var i = 0; i<connectedClients.length; i++) {
 		sum += connectedClients[i].timing;
 	}
-	return min - (sum/min);
+	var sV = min - (sum/min);
+
+	if(bool) {
+		var p = 5000/sV + randomIntFromInterval(0,500/(sV/10));
+	}
+	else {
+		var p = 5*sV + randomIntFromInterval(0,5*sV);
+	}
+
+	return p;
+}
+
+function randomIntFromInterval(min,max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
 }
