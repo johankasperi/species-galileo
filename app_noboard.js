@@ -1,5 +1,5 @@
 var io = require('socket.io-client');
-var socket = io('http://species.kspri.se');
+var socket = io('http://species-kspri.rhcloud.com');
 var _ = require('underscore');
 
 var timeout = null;

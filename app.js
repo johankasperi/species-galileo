@@ -1,6 +1,6 @@
 var io = require('socket.io-client');
 var mraa = require('mraa');
-var socket = io('http://species.kspri.se');
+var socket = io('http://species-kspri.rhcloud.com');
 var _ = require('underscore');
 
 var digPins = [];
@@ -32,7 +32,7 @@ socket.on('otherSpecie-isTouched', function(data) {
 	}
 })
 
-function startMakingSound(value) {
+function startMakingSound(value, clientId) {
 	var client = _.findWhere(connectedClients, { id: clientId });
 	if(client) {
 		client.timing = value;
@@ -48,7 +48,7 @@ function startMakingSound(value) {
 	}
 }
 
-function stopMakingSound(value) {
+function stopMakingSound(value, clientId) {
 	connectedClients = _.reject(connectedClients, function(c) { return c.id === clientId });
 	if(connectedClients.length < 1) {
 		clearTimeout(timeout);
