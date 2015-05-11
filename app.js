@@ -11,6 +11,7 @@ var connectedClients = [];
 
 // Connect to server
 socket.on('connect', function() {
+	console.log("connect");
 	socket.emit('board-connection', {});
 });
 
@@ -64,9 +65,10 @@ function stopMakingSoundOtherSpecie(value) {
 }
 
 function blink(bool) {
-	writePin(bool ? 1 : 0);
-	bool = !bool;
+	var w = bool ? 1 : 0;
+	writePin(w);
 	timeout = setTimeout(function() {
+		bool = !bool;
 		blink(bool);
 	}, getTiming(bool));
 }
@@ -87,6 +89,7 @@ function getTiming(bool) {
 	else {
 		var p = 5*sV + randomIntFromInterval(0,5*sV);
 	}
+	console.log(p);
 	return p;
 }
 
@@ -95,6 +98,7 @@ function randomIntFromInterval(min,max) {
 }
 
 function setupPins(pins) {
+	console.log("setup");
 	for(var i = 0; i<pins.length; i++) {
 		var pin = new mraa.Gpio(pins[i]);
 		pin.dir(mraa.DIR_OUT);

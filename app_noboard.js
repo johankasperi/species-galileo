@@ -76,17 +76,12 @@ function getTiming(bool) {
 		}
 		var sV = min - (sum/min);
 	}
-	console.log("hej")
-	console.log(bool);
 	if(bool) {
-		console.log("on")
 		var p = 5000/sV + randomIntFromInterval(0,500/(sV/10));
 	}
 	else {
-		console.log("off")
 		var p = 5*sV + randomIntFromInterval(0,5*sV);
 	}
-	console.log(p);
 	return p;
 }
 
