@@ -3,6 +3,7 @@ var socket = io('http://species-kspri.rhcloud.com');
 var _ = require('underscore');
 
 var timeout = null;
+var stop = false;
 var connectedClients = [];
 
 // Connect to server
@@ -39,14 +40,16 @@ function startMakingSound(value, clientId) {
 			timing: value
 		})
 	}
-	if(!timeout) {
-		blink(true);
-	}
+	clearTimeout(timeout);
+	timeout = null;
+	stop = false;
+	blink(true);
 }
 
 function stopMakingSound(value, clientId) {
 	connectedClients = _.reject(connectedClients, function(c) { return c.id === clientId });
 	if(connectedClients.length < 1) {
+		stop = true;
 		clearTimeout(timeout);
 		timeout = null;
 	}
@@ -60,21 +63,23 @@ function stopMakingSoundOtherSpecie(value) {
 
 function blink(bool) {
 	console.log(bool ? 1 : 0);
-	bool = !bool;
-	timeout = setTimeout(function() {
-		blink(bool);
-	}, getTiming(bool));
+	if(!stop) {
+		timeout = setTimeout(function() {
+			bool = !bool;
+			blink(bool);
+		}, getTiming(bool));
+	}
 }
 
 function getTiming(bool) {
 	var min = _.min(connectedClients, function(c) { return c.timing });
 	var sV = min.timing;
-	if(connectedClients.length != 1) {
+	if(connectedClients.length > 1) {
 		var sum = 0;
 		for(var i = 0; i<connectedClients.length; i++) {
-			sum += connectedClients[i].timing;
+			sum += Math.floor(connectedClients[i].timing);
 		}
-		var sV = min - (sum/min);
+		var sV = min.timing - (sum/min.timing);
 	}
 	if(bool) {
 		var p = 5000/sV + randomIntFromInterval(0,500/(sV/10));

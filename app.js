@@ -7,11 +7,12 @@ var digPins = [];
 setupPins([9, 10, 11]); // Edit this line to decide which pins to use
 
 var timeout = null;
+var stop = false;
 var connectedClients = [];
 
 // Connect to server
 socket.on('connect', function() {
-	console.log("connect");
+	console.log("Connecting and starting...");
 	socket.emit('board-connection', {});
 });
 
@@ -44,14 +45,16 @@ function startMakingSound(value, clientId) {
 			timing: value
 		})
 	}
-	if(!timeout) {
-		blink(true);
-	}
+	clearTimeout(timeout);
+	timeout = null;
+	stop = false;
+	blink(true);
 }
 
 function stopMakingSound(value, clientId) {
 	connectedClients = _.reject(connectedClients, function(c) { return c.id === clientId });
 	if(connectedClients.length < 1) {
+		stop = true;
 		clearTimeout(timeout);
 		timeout = null;
 		writePin(0);
@@ -67,21 +70,23 @@ function stopMakingSoundOtherSpecie(value) {
 function blink(bool) {
 	var w = bool ? 1 : 0;
 	writePin(w);
-	timeout = setTimeout(function() {
-		bool = !bool;
-		blink(bool);
-	}, getTiming(bool));
+	if(!stop) {
+		timeout = setTimeout(function() {
+			bool = !bool;
+			blink(bool);
+		}, getTiming(bool));
+	}
 }
 
 function getTiming(bool) {
 	var min = _.min(connectedClients, function(c) { return c.timing });
 	var sV = min.timing;
-	if(connectedClients.length != 1) {
+	if(connectedClients.length > 1) {
 		var sum = 0;
 		for(var i = 0; i<connectedClients.length; i++) {
-			sum += connectedClients[i].timing;
+			sum += Math.floor(connectedClients[i].timing);
 		}
-		var sV = min - (sum/min);
+		var sV = min.timing - (sum/min.timing);
 	}
 	if(bool) {
 		var p = 5000/sV + randomIntFromInterval(0,500/(sV/10));
@@ -89,7 +94,6 @@ function getTiming(bool) {
 	else {
 		var p = 5*sV + randomIntFromInterval(0,5*sV);
 	}
-	console.log(p);
 	return p;
 }
 
@@ -98,7 +102,6 @@ function randomIntFromInterval(min,max) {
 }
 
 function setupPins(pins) {
-	console.log("setup");
 	for(var i = 0; i<pins.length; i++) {
 		var pin = new mraa.Gpio(pins[i]);
 		pin.dir(mraa.DIR_OUT);
