@@ -6,7 +6,7 @@ The program is sending voltage to digital pin 9, 10 and 11. Preferably you will 
 
 ## Run instructions
 
-Change line 3 to the url of your server (if you don't want to use the provided server):
+Change line 3 in app.js to the url of your server (if you don't want to use the provided server):
 ```javascript
 var socket = io('http://species-kspri.rhcloud.com');
 ```
